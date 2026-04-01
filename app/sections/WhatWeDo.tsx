@@ -1,52 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
+import { cn } from '@/lib/utils';
+import { cambo } from '@/lib/fonts';
+import { useRevealOnIntersect } from '@/hooks/useRevealOnIntersect';
+import { useScrollProgress } from '@/hooks/useScrollProgress';
+import styles from './SectionAnimations.module.css';
 
 export function WhatWeDo() {
 	const sectionRef = useRef<HTMLElement | null>(null);
-	const [isVisible, setIsVisible] = useState(false);
-	const [scrollProgress, setScrollProgress] = useState(0);
-
-	useEffect(() => {
-		const sectionNode = sectionRef.current;
-
-		if (!sectionNode) {
-			return;
-		}
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsVisible(true);
-				}
-			},
-			{
-				threshold: 0.25,
-			}
-		);
-
-		observer.observe(sectionNode);
-
-		const handleScroll = () => {
-			if (!sectionNode) {
-				return;
-			}
-
-			const rect = sectionNode.getBoundingClientRect();
-			const viewportHeight = window.innerHeight;
-			const rawProgress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-			const clampedProgress = Math.max(0, Math.min(rawProgress, 1));
-			setScrollProgress(clampedProgress);
-		};
-
-		handleScroll();
-		window.addEventListener('scroll', handleScroll, { passive: true });
-
-		return () => {
-			observer.disconnect();
-			window.removeEventListener('scroll', handleScroll);
-		};
-	}, []);
+	const isVisible = useRevealOnIntersect(sectionRef, { threshold: 0.25 });
+	const scrollProgress = useScrollProgress(sectionRef);
 
 	const serviceParallaxY1 = (scrollProgress - 0.5) * 20;
 	const serviceParallaxY2 = (scrollProgress - 0.5) * -16;
@@ -93,91 +57,6 @@ export function WhatWeDo() {
 			className="w-full min-h-screen bg-background py-8 md:py-12"
 			aria-label="What we do"
 		>
-			<style>{`
-				@keyframes whatRevealUp {
-					from {
-						opacity: 0;
-						transform: translateY(20px);
-					}
-					to {
-						opacity: 1;
-						transform: translateY(0);
-					}
-				}
-
-				@keyframes whatLineGrow {
-					from {
-						transform: scaleX(0);
-						opacity: 0;
-					}
-					to {
-						transform: scaleX(1);
-						opacity: 1;
-					}
-				}
-
-				@keyframes whatServiceFloat {
-					0% {
-						transform: translateY(0px);
-					}
-					50% {
-						transform: translateY(-4px);
-					}
-					100% {
-						transform: translateY(0px);
-					}
-				}
-
-				.what-reveal {
-					opacity: 0;
-					transform: translateY(20px);
-				}
-
-				.what-reveal.is-visible {
-					animation: whatRevealUp 0.75s ease forwards;
-				}
-
-				.what-delay-1.is-visible {
-					animation-delay: 0.12s;
-				}
-
-				.what-delay-2.is-visible {
-					animation-delay: 0.24s;
-				}
-
-				.what-delay-3.is-visible {
-					animation-delay: 0.36s;
-				}
-
-				.what-delay-4.is-visible {
-					animation-delay: 0.48s;
-				}
-
-				.what-delay-5.is-visible {
-					animation-delay: 0.6s;
-				}
-
-				.what-line {
-					transform-origin: left center;
-					transform: scaleX(0);
-					opacity: 0;
-				}
-
-				.what-line.is-visible {
-					animation: whatLineGrow 0.8s ease forwards;
-					animation-delay: 0.2s;
-				}
-
-				.what-service-box {
-					background:
-						radial-gradient(circle at 18% 22%, rgba(212, 175, 55, 0.15), transparent 46%),
-						linear-gradient(140deg, rgba(74, 139, 143, 0.12), rgba(255, 255, 255, 0.01));
-					border: 1px solid rgba(212, 175, 55, 0.2);
-					box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 12px 24px rgba(0, 0, 0, 0.24);
-					animation: whatServiceFloat 6s ease-in-out infinite;
-				}
-			`}</style>
-
 			<div className="mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-7xl items-center px-4 sm:px-6 lg:px-8">
 				<div
 					className="relative w-full overflow-hidden rounded-xl border border-white/5 bg-foreground p-6 md:p-8 lg:p-10"
@@ -194,7 +73,7 @@ export function WhatWeDo() {
 						<div className="lg:col-span-5">
 							<div className="grid h-full grid-cols-2 gap-4 sm:gap-5">
 								<div
-									className={`what-reveal what-delay-2 ${isVisible ? 'is-visible' : ''} what-service-box relative min-h-32 rounded-xl p-4 sm:min-h-36`}
+									className={cn(styles.whatServiceBox, 'relative min-h-32 rounded-xl p-4 sm:min-h-36')}
 									style={{ transform: `translateY(${serviceParallaxY2}px)` }}
 								>
 									<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-highlight">Brand Cohesion</p>
@@ -204,7 +83,7 @@ export function WhatWeDo() {
 								</div>
 
 								<div
-									className={`what-reveal what-delay-3 ${isVisible ? 'is-visible' : ''} what-service-box relative min-h-32 rounded-xl p-4 sm:min-h-36`}
+									className={cn(styles.whatServiceBox, 'relative min-h-32 rounded-xl p-4 sm:min-h-36')}
 									style={{ transform: `translateY(${serviceParallaxY3}px)` }}
 								>
 									<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-highlight">Execution Model</p>
@@ -214,7 +93,7 @@ export function WhatWeDo() {
 								</div>
 
 								<div
-									className={`what-reveal what-delay-4 ${isVisible ? 'is-visible' : ''} what-service-box relative col-span-2 min-h-40 rounded-xl p-4 sm:min-h-48`}
+									className={cn(styles.whatServiceBox, 'relative col-span-2 min-h-40 rounded-xl p-4 sm:min-h-48')}
 									style={{ transform: `translateY(${serviceParallaxY1}px)` }}
 								>
 									<p className="font-mono text-xs uppercase tracking-[0.22em] text-highlight">Production Quality</p>
@@ -227,26 +106,26 @@ export function WhatWeDo() {
 
 						<div className="lg:col-span-7">
 							<p
-								className={`what-reveal ${isVisible ? 'is-visible' : ''} font-mono text-sm uppercase tracking-[0.28em] text-highlight`}
+								className={cn(styles.reveal, isVisible && styles.visible, 'font-mono text-sm uppercase tracking-[0.28em] text-highlight')}
 							>
 								What We Do
 							</p>
 							<div
-								className={`what-line ${isVisible ? 'is-visible' : ''} mt-3 h-px w-32 bg-linear-to-r from-highlight to-transparent`}
+								className={cn(styles.line, isVisible && styles.visible, 'mt-3 h-px w-32 bg-linear-to-r from-highlight to-transparent')}
 							/>
 
 							<div className="mt-8 space-y-5">
 								{services.map((service, index) => (
 									<div
 										key={service.number}
-										className={`what-reveal what-delay-${index + 1} ${isVisible ? 'is-visible' : ''}`}
+										className={cn(styles.reveal, styles[`delay${index + 1}` as keyof typeof styles], isVisible && styles.visible)}
 									>
 										<div className="flex gap-3 items-start">
-											<span className="font-sans text-sm font-bold text-highlight flex-shrink-0 pt-0.5">
+											<span className="font-sans text-sm font-bold text-highlight shrink-0 pt-0.5">
 												{service.number}
 											</span>
-											<div className="flex-grow">
-												<h3 className="font-sans text-sm font-bold text-white">
+											<div className="grow">
+												<h3 className={cn(cambo.className, 'text-base font-bold text-white')}>
 													{service.title}
 												</h3>
 												<p className="mt-2 font-sans text-xs leading-relaxed text-secondary">

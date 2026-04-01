@@ -1,58 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { cambo } from '@/lib/fonts';
+import { useRevealOnIntersect } from '@/hooks/useRevealOnIntersect';
+import { useScrollProgress } from '@/hooks/useScrollProgress';
+import styles from './SectionAnimations.module.css';
 
 type InquiryType = 'project' | 'call';
+type SubmitStatus = 'idle' | 'pending' | 'success' | 'error';
 
 export function FinalCta() {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const dialogPanelRef = useRef<HTMLDivElement | null>(null);
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const lastActiveElementRef = useRef<HTMLElement | null>(null);
   const closeTimerRef = useRef<number | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const isVisible = useRevealOnIntersect(sectionRef, { threshold: 0.25 });
+  const scrollProgress = useScrollProgress(sectionRef);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
   const [inquiryType, setInquiryType] = useState<InquiryType>('project');
-
-  useEffect(() => {
-    const sectionNode = sectionRef.current;
-
-    if (!sectionNode) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      {
-        threshold: 0.25,
-      }
-    );
-
-    observer.observe(sectionNode);
-
-    const handleScroll = () => {
-      if (!sectionNode) {
-        return;
-      }
-
-      const rect = sectionNode.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const rawProgress = (viewportHeight - rect.top) / (viewportHeight + rect.height);
-      const clampedProgress = Math.max(0, Math.min(rawProgress, 1));
-      setScrollProgress(clampedProgress);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   useEffect(() => {
     return () => {
@@ -69,7 +39,10 @@ export function FinalCta() {
         closeTimerRef.current = null;
       }
       setInquiryType('project');
+      setSubmitStatus('idle');
+      setSubmitMessage('');
       setIsModalClosing(false);
+      lastActiveElementRef.current = document.activeElement as HTMLElement | null;
       setIsModalOpen(true);
     };
 
@@ -89,7 +62,10 @@ export function FinalCta() {
     }
 
     setInquiryType(type);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
     setIsModalClosing(false);
+    lastActiveElementRef.current = document.activeElement as HTMLElement | null;
     setIsModalOpen(true);
   };
 
@@ -102,6 +78,9 @@ export function FinalCta() {
     closeTimerRef.current = window.setTimeout(() => {
       setIsModalOpen(false);
       setIsModalClosing(false);
+      setSubmitStatus('idle');
+      setSubmitMessage('');
+      lastActiveElementRef.current?.focus();
       closeTimerRef.current = null;
     }, 260);
   }, [isModalClosing, isModalOpen]);
@@ -113,24 +92,97 @@ export function FinalCta() {
     }
 
     document.body.style.overflow = 'hidden';
+    window.requestAnimationFrame(() => {
+      firstInputRef.current?.focus();
+    });
 
-    const onEsc = (event: KeyboardEvent) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         closeModal();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialogPanelRef.current) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        dialogPanelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+
+      if (focusableElements.length === 0) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
+
+      if (!event.shiftKey && activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+
+      if (event.shiftKey && activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
       }
     };
 
-    window.addEventListener('keydown', onEsc);
+    window.addEventListener('keydown', onKeyDown);
 
     return () => {
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', onEsc);
+      window.removeEventListener('keydown', onKeyDown);
     };
   }, [closeModal, isModalOpen]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsModalOpen(false);
+
+    const formData = new FormData(event.currentTarget);
+    const payload = {
+      inquiryType,
+      name: String(formData.get('name') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      company: String(formData.get('company') ?? ''),
+      timeline: String(formData.get('timeline') ?? ''),
+      scope: String(formData.get('scope') ?? ''),
+      message: String(formData.get('message') ?? ''),
+    };
+
+    try {
+      setSubmitStatus('pending');
+      setSubmitMessage('Sending your request...');
+
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = (await response.json()) as { message?: string; error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong while sending your request.');
+      }
+
+      setSubmitStatus('success');
+      setSubmitMessage(data.message || 'Request sent successfully.');
+      event.currentTarget.reset();
+
+      window.setTimeout(() => {
+        closeModal();
+      }, 900);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to send request. Please try again.';
+      setSubmitStatus('error');
+      setSubmitMessage(message);
+    }
   };
 
   return (
@@ -141,199 +193,6 @@ export function FinalCta() {
         className="w-full max-h-[calc(100vh-190px)]  min-h-[calc(100vh-190px)] bg-background py-8 md:py-12"
         aria-label="Final call to action"
       >
-        <style>{`
-          @keyframes ctaRevealUp {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          @keyframes ctaLineGrow {
-            from {
-              transform: scaleX(0);
-              opacity: 0;
-            }
-            to {
-              transform: scaleX(1);
-              opacity: 1;
-            }
-          }
-
-          @keyframes ctaOrbFloat {
-            0% {
-              transform: translate3d(0, 0, 0);
-            }
-            50% {
-              transform: translate3d(0, -8px, 0);
-            }
-            100% {
-              transform: translate3d(0, 0, 0);
-            }
-          }
-
-          @keyframes modalBackdropIn {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
-          }
-
-          @keyframes modalBackdropOut {
-            from {
-              opacity: 1;
-            }
-            to {
-              opacity: 0;
-            }
-          }
-
-          @keyframes modalPanelIn {
-            from {
-              opacity: 0;
-              transform: translateY(16px) scale(0.97);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
-          }
-
-          @keyframes modalPanelOut {
-            from {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
-            to {
-              opacity: 0;
-              transform: translateY(10px) scale(0.98);
-            }
-          }
-
-          @keyframes modalContentIn {
-            from {
-              opacity: 0;
-              transform: translateY(8px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          @keyframes modalContentOut {
-            from {
-              opacity: 1;
-              transform: translateY(0);
-            }
-            to {
-              opacity: 0;
-              transform: translateY(6px);
-            }
-          }
-
-          .final-reveal {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-
-          .final-reveal.is-visible {
-            animation: ctaRevealUp 0.75s ease forwards;
-          }
-
-          .final-delay-1.is-visible {
-            animation-delay: 0.12s;
-          }
-
-          .final-delay-2.is-visible {
-            animation-delay: 0.24s;
-          }
-
-          .final-delay-3.is-visible {
-            animation-delay: 0.36s;
-          }
-
-          .final-line {
-            transform-origin: left center;
-            transform: scaleX(0);
-            opacity: 0;
-          }
-
-          .final-line.is-visible {
-            animation: ctaLineGrow 0.8s ease forwards;
-            animation-delay: 0.2s;
-          }
-
-          .final-cta-primary {
-            background: linear-gradient(135deg, var(--primary-accent), #6f9ea1);
-            color: var(--background);
-            box-shadow: 0 14px 30px rgba(74, 139, 143, 0.35);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-          }
-
-          .final-cta-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 18px 34px rgba(74, 139, 143, 0.42);
-          }
-
-          .final-cta-secondary {
-            border: 1px solid rgba(212, 175, 55, 0.48);
-            color: var(--secondary-accent);
-            background: rgba(255, 255, 255, 0.02);
-            transition: border-color 0.3s ease, background 0.3s ease;
-          }
-
-          .final-cta-secondary:hover {
-            border-color: rgba(212, 175, 55, 0.85);
-            background: rgba(212, 175, 55, 0.08);
-          }
-
-          .final-orb {
-            animation: ctaOrbFloat 5s ease-in-out infinite;
-          }
-
-          .modal-backdrop-in {
-            animation: modalBackdropIn 0.22s ease-out forwards;
-          }
-
-          .modal-backdrop-out {
-            animation: modalBackdropOut 0.2s ease-in forwards;
-          }
-
-          .modal-panel-in {
-            animation: modalPanelIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            transform-origin: center;
-          }
-
-          .modal-panel-out {
-            animation: modalPanelOut 0.2s ease-in forwards;
-            transform-origin: center;
-          }
-
-          .modal-content-in {
-            opacity: 0;
-            animation: modalContentIn 0.24s ease-out forwards;
-          }
-
-          .modal-content-out {
-            animation: modalContentOut 0.16s ease-in forwards;
-          }
-
-          .modal-content-in.delay-1 {
-            animation-delay: 0.1s;
-          }
-
-          .modal-content-in.delay-2 {
-            animation-delay: 0.16s;
-          }
-        `}</style>
-
         <div className="mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-7xl items-start px-4 sm:px-6 lg:px-8">
           <div
             className="relative mt-5 w-full overflow-hidden rounded-xl border border-white/5 bg-foreground p-6 md:p-8 lg:p-10"
@@ -346,32 +205,32 @@ export function FinalCta() {
               }}
             />
 
-            <div className="final-orb pointer-events-none absolute -right-16 top-8 h-44 w-44 rounded-full opacity-35 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.5), transparent 68%)' }} />
-            <div className="final-orb pointer-events-none absolute -left-12 bottom-8 h-36 w-36 rounded-full opacity-30 blur-2xl" style={{ background: 'radial-gradient(circle, rgba(74, 139, 143, 0.6), transparent 68%)', animationDelay: '1.2s' }} />
+            <div className={`${styles.finalOrb} pointer-events-none absolute -right-16 top-8 h-44 w-44 rounded-full opacity-35 blur-2xl`} style={{ background: 'radial-gradient(circle, rgba(212, 175, 55, 0.5), transparent 68%)' }} />
+            <div className={`${styles.finalOrb} pointer-events-none absolute -left-12 bottom-8 h-36 w-36 rounded-full opacity-30 blur-2xl`} style={{ background: 'radial-gradient(circle, rgba(74, 139, 143, 0.6), transparent 68%)', animationDelay: '1.2s' }} />
 
             <div className="relative z-10 max-w-4xl">
 
 
-              <h2 className={`final-reveal final-delay-1 ${isVisible ? 'is-visible' : ''} font-sans text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl`}>
+              <h2 className={cn(styles.reveal, styles.delay1, isVisible && styles.visible, cambo.className, 'text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl')}>
                 Tell us what you need. We will respond with a clear execution plan.
               </h2>
 
-              <p className={`final-reveal final-delay-2 ${isVisible ? 'is-visible' : ''} mt-5 max-w-3xl font-sans text-base leading-relaxed text-secondary sm:text-lg`}>
+              <p className={cn(styles.reveal, styles.delay2, isVisible && styles.visible, 'mt-5 max-w-3xl font-sans text-base leading-relaxed text-secondary sm:text-lg')}>
                 Share your scope and timeline. We will return structured next steps and a defined quotation.
               </p>
 
-              <div className={`final-reveal final-delay-3 ${isVisible ? 'is-visible' : ''} mt-8 flex flex-col gap-4 sm:flex-row`}>
+              <div className={cn(styles.reveal, styles.delay3, isVisible && styles.visible, 'mt-8 flex flex-col gap-4 sm:flex-row')}>
                 <button
                   type="button"
                   onClick={() => openModal('project')}
-                  className="final-cta-primary rounded-lg px-7 py-3 text-sm font-semibold uppercase tracking-wide"
+                  className={`${styles.finalCtaPrimary} rounded-lg px-7 py-3 text-sm font-semibold uppercase tracking-wide`}
                 >
                   Start a Project
                 </button>
                 <button
                   type="button"
                   onClick={() => openModal('call')}
-                  className="final-cta-secondary rounded-lg px-7 py-3 text-sm font-semibold uppercase tracking-wide"
+                  className={`${styles.finalCtaSecondary} rounded-lg px-7 py-3 text-sm font-semibold uppercase tracking-wide`}
                 >
                   Book a Call
                 </button>
@@ -384,14 +243,15 @@ export function FinalCta() {
       {isModalOpen && (
         <div
           className={`fixed inset-0 z-70 flex items-center justify-center bg-black/70 px-4 ${
-            isModalClosing ? 'modal-backdrop-out' : 'modal-backdrop-in'
+            isModalClosing ? styles.modalBackdropOut : styles.modalBackdropIn
           }`}
           onClick={closeModal}
           role="presentation"
         >
           <div
+            ref={dialogPanelRef}
             className={`relative w-full max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-foreground p-6 sm:p-7 ${
-              isModalClosing ? 'modal-panel-out' : 'modal-panel-in'
+              isModalClosing ? styles.modalPanelOut : styles.modalPanelIn
             }`}
             style={{ boxShadow: '0 30px 80px rgba(0, 0, 0, 0.45)' }}
             onClick={(event) => event.stopPropagation()}
@@ -411,14 +271,14 @@ export function FinalCta() {
             <h3
               id="contact-modal-title"
               className={`pr-16 font-sans text-2xl font-bold text-white ${
-                isModalClosing ? 'modal-content-out' : 'modal-content-in delay-1'
+                isModalClosing ? styles.modalContentOut : `${styles.modalContentIn} ${styles.modalDelay1}`
               }`}
             >
               Contact Us
             </h3>
             <p
               className={`mt-2 text-sm text-secondary ${
-                isModalClosing ? 'modal-content-out' : 'modal-content-in delay-1'
+                isModalClosing ? styles.modalContentOut : `${styles.modalContentIn} ${styles.modalDelay1}`
               }`}
             >
               {inquiryType === 'project' ? 'Project inquiry' : 'Call request'} selected. Share your details and we will get back with structured next steps.
@@ -426,7 +286,7 @@ export function FinalCta() {
 
             <form
               className={`mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 ${
-                isModalClosing ? 'modal-content-out' : 'modal-content-in delay-2'
+                isModalClosing ? styles.modalContentOut : `${styles.modalContentIn} ${styles.modalDelay2}`
               }`}
               onSubmit={handleSubmit}
             >
@@ -435,6 +295,7 @@ export function FinalCta() {
               <label className="flex flex-col gap-2 text-sm text-secondary">
                 <span>Name</span>
                 <input
+                  ref={firstInputRef}
                   required
                   name="name"
                   className="rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-white outline-none transition focus:border-primary"
@@ -501,11 +362,24 @@ export function FinalCta() {
                 </button>
                 <button
                   type="submit"
+                  disabled={submitStatus === 'pending'}
                   className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-background transition hover:opacity-90"
                 >
-                  Send Request
+                  {submitStatus === 'pending' ? 'Sending...' : 'Send Request'}
                 </button>
               </div>
+
+              {submitMessage && (
+                <p
+                  className={cn(
+                    'sm:col-span-2 text-sm font-medium',
+                    submitStatus === 'error' ? 'text-red-300' : 'text-secondary'
+                  )}
+                  role={submitStatus === 'error' ? 'alert' : 'status'}
+                >
+                  {submitMessage}
+                </p>
+              )}
             </form>
           </div>
         </div>

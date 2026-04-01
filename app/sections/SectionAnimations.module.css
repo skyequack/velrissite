@@ -1,0 +1,434 @@
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lineGrow {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes whoImageFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes whatServiceFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes engCardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowFloat1 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  16% {
+    transform: translate(15px, -200px);
+  }
+  33% {
+    transform: translate(-10px, 220px);
+  }
+  50% {
+    transform: translate(12px, -210px);
+  }
+  66% {
+    transform: translate(-15px, 200px);
+  }
+  83% {
+    transform: translate(10px, -190px);
+  }
+}
+
+@keyframes glowFloat2 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  16% {
+    transform: translate(-12px, 210px);
+  }
+  33% {
+    transform: translate(15px, -200px);
+  }
+  50% {
+    transform: translate(-10px, 220px);
+  }
+  66% {
+    transform: translate(12px, -210px);
+  }
+  83% {
+    transform: translate(-15px, 190px);
+  }
+}
+
+@keyframes glowFloat3 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  16% {
+    transform: translate(10px, 200px);
+  }
+  33% {
+    transform: translate(-15px, -210px);
+  }
+  50% {
+    transform: translate(15px, 220px);
+  }
+  66% {
+    transform: translate(-12px, -200px);
+  }
+  83% {
+    transform: translate(12px, 210px);
+  }
+}
+
+@keyframes ctaOrbFloat {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalBackdropOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalPanelOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes modalContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalContentOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes gradientLoop {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.visible {
+  animation: revealUp 0.75s ease forwards;
+}
+
+.delay1.visible {
+  animation-delay: 0.12s;
+}
+
+.delay2.visible {
+  animation-delay: 0.24s;
+}
+
+.delay3.visible {
+  animation-delay: 0.36s;
+}
+
+.delay4.visible {
+  animation-delay: 0.48s;
+}
+
+.delay5.visible {
+  animation-delay: 0.6s;
+}
+
+.line {
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.line.visible {
+  animation: lineGrow 0.8s ease forwards;
+  animation-delay: 0.2s;
+}
+
+.whoPlaceholder {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(212, 175, 55, 0.2), transparent 46%),
+    linear-gradient(140deg, rgba(74, 139, 143, 0.16), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 24px 44px rgba(0, 0, 0, 0.32);
+}
+
+.whatServiceBox {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(212, 175, 55, 0.15), transparent 46%),
+    linear-gradient(140deg, rgba(74, 139, 143, 0.12), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 12px 24px rgba(0, 0, 0, 0.24);
+  animation: whatServiceFloat 6s ease-in-out infinite;
+}
+
+.engCard {
+  opacity: 0;
+}
+
+.engCardVisible {
+  animation: engCardSlideUp 0.7s ease forwards;
+}
+
+.engCardNumber {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: rgba(74, 139, 143, 0.15);
+  line-height: 1;
+}
+
+.engCardBorder {
+  border: 1px solid rgba(74, 139, 143, 0.3);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(74, 139, 143, 0.12), transparent 46%),
+    linear-gradient(140deg, rgba(74, 139, 143, 0.08), rgba(255, 255, 255, 0.01));
+}
+
+.engCardAccent {
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-accent), transparent);
+  opacity: 0.7;
+}
+
+.engGlow {
+  animation: glowFloat1 50s ease-in-out infinite;
+}
+
+.glow1 {
+  animation-name: glowFloat1;
+}
+
+.glow2 {
+  animation-name: glowFloat2;
+}
+
+.glow3 {
+  animation-name: glowFloat3;
+}
+
+.nitStepCard {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(74, 139, 143, 0.15), transparent 50%),
+    linear-gradient(140deg, rgba(74, 139, 143, 0.12), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(74, 139, 143, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 24px 44px rgba(0, 0, 0, 0.32);
+  transition: all 0.4s ease;
+}
+
+.nitStepCard:hover {
+  border-color: rgba(74, 139, 143, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 24px 60px rgba(74, 139, 143, 0.2);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(74, 139, 143, 0.25), transparent 50%),
+    linear-gradient(140deg, rgba(74, 139, 143, 0.18), rgba(255, 255, 255, 0.02));
+}
+
+.nitStepNumber {
+  font-size: 1.875rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(74, 139, 143, 0.9), rgba(74, 139, 143, 0.4));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.structureColorAnimate {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    rgba(186, 145, 24, 1) 0%,
+    rgba(186, 145, 24, 1) 10%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(186, 145, 24, 1) 90%,
+    rgba(186, 145, 24, 1) 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  will-change: background-position;
+}
+
+.predictableColorAnimate {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    rgba(63, 123, 127, 1) 0%,
+    rgba(63, 123, 127, 1) 22%,
+    rgba(244, 250, 250, 1) 50%,
+    rgba(63, 123, 127, 1) 78%,
+    rgba(63, 123, 127, 1) 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  will-change: background-position;
+}
+
+.finalCtaPrimary {
+  background: linear-gradient(135deg, var(--primary-accent), #6f9ea1);
+  color: var(--background);
+  box-shadow: 0 14px 30px rgba(74, 139, 143, 0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.finalCtaPrimary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(74, 139, 143, 0.42);
+}
+
+.finalCtaSecondary {
+  border: 1px solid rgba(212, 175, 55, 0.48);
+  color: var(--secondary-accent);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.finalCtaSecondary:hover {
+  border-color: rgba(212, 175, 55, 0.85);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.finalOrb {
+  animation: ctaOrbFloat 5s ease-in-out infinite;
+}
+
+.modalBackdropIn {
+  animation: modalBackdropIn 0.22s ease-out forwards;
+}
+
+.modalBackdropOut {
+  animation: modalBackdropOut 0.2s ease-in forwards;
+}
+
+.modalPanelIn {
+  animation: modalPanelIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: center;
+}
+
+.modalPanelOut {
+  animation: modalPanelOut 0.2s ease-in forwards;
+  transform-origin: center;
+}
+
+.modalContentIn {
+  opacity: 0;
+  animation: modalContentIn 0.24s ease-out forwards;
+}
+
+.modalContentOut {
+  animation: modalContentOut 0.16s ease-in forwards;
+}
+
+.modalDelay1 {
+  animation-delay: 0.1s;
+}
+
+.modalDelay2 {
+  animation-delay: 0.16s;
+}

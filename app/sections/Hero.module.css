@@ -1,0 +1,81 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes colorChange {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes fadeToGray {
+  from {
+    color: white;
+  }
+  to {
+    color: #6a6a6a;
+  }
+}
+
+@keyframes driftGlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -1%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.gradientFadeIn {
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+.leadColorAnimate {
+  background: linear-gradient(135deg, white 0%, white 50%, var(--highlight) 100%);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: colorChange 1s ease-in-out forwards;
+}
+
+.fadeToGray {
+  animation: fadeToGray 1s ease-in-out forwards;
+  animation-delay: 2s;
+}
+
+.heroBackground {
+  background-image: linear-gradient(rgba(16, 16, 16, 0.72), rgba(16, 16, 16, 0.72)), url('/images/heroimage.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.heroGlow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  animation: driftGlow 10s ease-in-out infinite;
+}
+
+.heroGlowWarm {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.2) 34%, rgba(255, 255, 255, 0) 72%);
+}
+
+.heroGlowCool {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.12) 38%, rgba(255, 255, 255, 0) 78%);
+  animation-delay: -4s;
+}
