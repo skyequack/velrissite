@@ -13,20 +13,21 @@ export function Footer() {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-highlight">Velris Studio LLC</p>
+            <p className="font-sans text-xs uppercase tracking-[0.2em] text-highlight">
+              <span>Velris |</span>
+              <span className="ml-2 normal-case tracking-normal text-highlight">مؤسسة آفاق الرؤية التجارية</span>
+            </p>
             <p className="mt-1.5 font-sans text-sm text-secondary">Placeholder HQ: King Fahd Road, Riyadh, Saudi Arabia</p>
           </div>
 
           <p className="font-sans text-sm text-white">
-            +966 50 000 0000
-            <span className="px-3 text-secondary">|</span>
-            hello@velrisstudio.com
+            info@velris.co
           </p>
         </div>
 
         <div className="mt-4 flex flex-col gap-1 border-t border-white/10 pt-3 font-sans text-xs text-secondary sm:flex-row sm:items-center sm:justify-between">
-          <p>Commercial Registration: 0000000000 | VAT: 300000000000003</p>
-          <p>2026 Velris Studio LLC. All rights reserved.</p>
+          <p>Commercial Registration: 4030501739 | VAT: 310448469500003</p>
+          <p>2026 Velris. All rights reserved.</p>
         </div>
       </div>
     </footer>
