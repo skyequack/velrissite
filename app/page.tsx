@@ -25,7 +25,7 @@ export default function Home() {
       {/* <WhyVelris />
       <SectionDivider /> */}
       <FinalCta />
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 }
